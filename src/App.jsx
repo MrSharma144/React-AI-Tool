@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState} from 'react';
 import React from "react";
 import { URL } from "./constant.js";
-import Answers from './components/Answers.jsx';
 import './index.css';
 import { Loader2, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { Toaster } from "react-hot-toast";
+import RecentSearch from './components/RecentSearch.jsx';
+import QuestionAnswer from './components/QuestionAnswer.jsx';
 
 function App() {
   const [question, setQuestion] = useState("");
@@ -14,6 +15,7 @@ function App() {
   const [recentHistory, setRecentHistory]=useState(JSON.parse(localStorage.getItem('history')));
   const [selectedHistory, setSelectedHistory]=useState(null);
   const scrollToAnswer=useRef();
+  const [darkMode, setDarkMode]=useState('dark');
   
 
   
@@ -36,7 +38,7 @@ function App() {
     if(localStorage.getItem('history')){
       let history=(JSON.parse(localStorage.getItem('history')));
       history=[question,...history];
-      if(history.length>5) history.pop();
+      
       localStorage.setItem('history',JSON.stringify(history));
       setRecentHistory(history);
     }
@@ -97,7 +99,7 @@ function App() {
     return () => clearTimeout(timer);
   }, [onDone]);
   return (
-    <div className="bg-zinc-600 p-3 rounded text-white shadow-lg">
+    <div className="bg-amber-50 dark:bg-zinc-600 p-3 rounded text-zinc-800 dark:text-white shadow-lg">
       ✅ History cleared!
     </div>
   );
@@ -107,7 +109,7 @@ const clearHistory = () => {
   const toastId = "clear-history";
   toast.custom(
     (t) => (
-      <div className="bg-zinc-800 p-3 rounded text-white shadow-lg">
+      <div className="bg-amber-200 dark:bg-zinc-800 p-3 rounded text-zinc-700 dark:text-white shadow-lg">
         <div className="flex flex-col gap-2">
           <p>Are you sure you want to clear all recent search?</p>
           <div className="flex gap-2">
@@ -128,7 +130,7 @@ const clearHistory = () => {
             </button>
             <button
               onClick={() => toast.dismiss(toastId)}
-              className="px-3 py-1 bg-zinc-400 rounded"
+              className="px-3 py-1 dark:bg-zinc-400 bg-zinc-100 rounded"
             >
               Cancel
             </button>
@@ -158,34 +160,37 @@ const isEnter=(event)=>{
     }
 }
 
-  return (
-    <>
-    <Toaster position="top-left"/>
-    <div className="grid grid-cols-5 h-screen text-center">
-      {/* Sidebar */}
-      <div className="col-span-1 h-screen  bg-zinc-800">
-        <h1 className='pt-3 pb-3 text-xl text-white bg-black'><span>Recent Search</span>
-          <button className='pl-4 cursor-pointer' onClick={clearHistory}><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#F3F3F3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></button>
-        </h1>
-        <button className='p-2 m-2 bg-zinc-950 text-zinc-300 hover:text-white hover:bg-zinc-700 rounded-md' onClick={()=>window.location.reload()}>New Chat <b>+</b></button>
-        <ul className='text-left overflow-auto '>
-          {
-            recentHistory && recentHistory.map((item,index)=>(
-              <li 
-               key={index}
-               className="truncate p-1 pl-5 m-2 hover:bg-zinc-700 hover:text-zinc-300 text-white  cursor-pointer"
-              onClick={()=>{
-                setSelectedHistory(item);
-              }
-              }>{item}</li>
-            ))
-          }
-        </ul>
-      </div>
-      
+//dark Mode
+useEffect(()=>{
+  if(darkMode=='dark'){
+    document.documentElement.classList.add('dark');
+  }
+  else{
+    document.documentElement.classList.remove('dark');
+  }
+}
+,[darkMode]);
 
+const newChat = () => {
+  setQuestion("");
+  setResult([]);
+  setSelectedHistory(null);
+};
+
+  return (
+    <div className={darkMode=='dark'?'dark':'light'}>
+      
+    <Toaster position="top-center"/>
+    <div className="grid grid-cols-6 h-screen text-center">
+      <select className='fixed top-3 right-3 bg-amber-50 dark:bg-zinc-800 dark:text-white text-zinc-600 p-2 rounded-md' onChange={(e)=>setDarkMode(e.target.value)}>
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+    </select>
+      
+    <RecentSearch recentHistory={recentHistory} setSelectedHistory={setSelectedHistory} clearHistory={clearHistory} newChat={newChat}/>
+    
       {/* Main Section */}
-      <div className="col-span-4 bg-zinc-900 p-10 h-screen flex flex-col">
+      <div className="col-span-5 bg-amber-50 dark:bg-zinc-900 p-10 h-screen flex flex-col">
         <h1 className='text-4xl bg-clip-text text-transparent bg-gradient-to-r from-pink-700 to-violet-700 pb-2'>Hello User, Ask me Anything!</h1>
         {/* Chat area */}
         {
@@ -202,46 +207,14 @@ const isEnter=(event)=>{
           <div className="text-zinc-300 mb-5">
             <ul className="flex flex-col">
               {result.map((item, index) => (
-                <div
-                  key={index}
-                  className={
-                    item.type === "q"
-                      ? "flex justify-end"
-                      : "flex flex-col justify-start"
-                  }
-                >
-                  {item.type === "q" ? (
-                    <li className="text-right m-1 border-10 bg-zinc-700 border-zinc-700 rounded-tl-3xl rounded-bl-3xl rounded-br-3xl w-fit">
-                      <Answers
-                        ans={item.text}
-                        totalResult={1}
-                        index={index}
-                        type={item.type}
-                      />
-                    </li>
-                  ) : (
-                    item.text.map((ansItem, ansIndex) => (
-                      <li
-                        key={ansIndex}
-                        className="text-left m-1"
-                      >
-                        <Answers
-                          ans={ansItem}
-                          totalResult={item.text.length}
-                          index={ansIndex}
-                          type={item.type}
-                        />
-                      </li>
-                    ))
-                  )}
-                </div>
+                <QuestionAnswer key={index} item={item} index={index}/>
               ))}
             </ul>
           </div>
         </div>
 
         {/* Input Section */}
-        <div className="bg-zinc-800 w-1/2 text-white m-auto mt-5 p-1 rounded-4xl border-zinc-400 border flex h-16">
+        <div className="bg-amber-100 dark:bg-zinc-800 w-1/2 dark:text-white text-zinc-800 m-auto mt-5 p-1 rounded-4xl border-zinc-400 border flex h-16">
           <input
             type="text"
             onKeyDown={isEnter}
@@ -268,8 +241,11 @@ const isEnter=(event)=>{
           </button>
         </div>
       </div>
-    </div>
-    </>
+      </div>
+      </div>
+    
+    
+    
   );
 }
 export default App;

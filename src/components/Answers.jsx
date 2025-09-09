@@ -17,9 +17,9 @@ function Answers({ans,index,totalResult,type}) {
   return (
     <>
     {
-      index==0 && totalResult>1 ? <div className="pt-1 text-lg text-white">{answer}</div>:
-      heading?<div className='pt-1 text-md block text-white'>{answer}</div>:<div className={
-        type=='q'?'pl-1 text-md block text-white':'pl-5 text-zinc-300'
+      index==0 && totalResult>1 ? <div className="pt-1 text-lg text-zinc-700 dark:text-white">{answer}</div>:
+      heading?<div className='pt-1 text-md block  text-zinc-700 dark:text-white'>{answer}</div>:<div className={
+        type=='q'?'pl-1 text-md block text-zinc-700 dark:text-white':'pl-5  text-zinc-600 dark:text-zinc-300'
       }>{answer}</div>
     }
           
