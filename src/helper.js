@@ -1,10 +1,14 @@
 import React from 'react'
 
 export function checkHeading(str) {
-  return /^\*\*.*\*$/.test(str);
+   const regex = /^(\*)(\*)(.*)(\*)$/;
+  return regex.test(str);
 }
 
+
 export function replaceHeadingStars(str) {
-  return str.replace(/^\*\*(.*)\*$/, '');
+  return str.replace(/\*\*|\*$/g, " ");
+  
 }
+
 
