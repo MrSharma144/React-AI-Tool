@@ -1,8 +1,10 @@
-
-
 export default async function handler(req, res) {
   try {
-    const { question } = await req.json();
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    const { question } = req.body; // ✅ use req.body
 
     if (!question) {
       return res.status(400).json({ error: "No question provided" });
@@ -14,11 +16,7 @@ export default async function handler(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: question }],
-            },
-          ],
+          contents: [{ parts: [{ text: question }] }],
         }),
       }
     );
@@ -26,7 +24,6 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Gemini API error:", data);
       return res.status(response.status).json({ error: data });
     }
 
