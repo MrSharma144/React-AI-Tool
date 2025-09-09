@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState} from 'react';
 import React from "react";
-import { URL } from "./constant.js";
 import './index.css';
 import { Loader2, Upload } from "lucide-react";
 import toast from "react-hot-toast";
@@ -63,8 +62,11 @@ function App() {
   };
    setLoading(true);
     try {
-      let response = await fetch(URL, {
+      let response = await fetch('/api/gemini', {
         method: "POST",
+        headers: {
+    "Content-Type": "application/json",
+  },
         body: JSON.stringify(payload)
       });
     
