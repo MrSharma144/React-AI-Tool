@@ -2,7 +2,7 @@ import React, { useState,useEffect } from 'react'
 import { checkHeading, replaceHeadingStars } from '../helper.js';
 import ReactMarkdown from 'react-markdown';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
 function Answers({ans,index,totalResult,type}) {
@@ -26,7 +26,7 @@ function Answers({ans,index,totalResult,type}) {
           {...props}
           children={String(children).replace(/\n$/, '')}
           language={match[1]}
-          style={dark}
+          style={oneDark}
           PreTag="div"
           />
         ):(
@@ -45,7 +45,7 @@ function Answers({ans,index,totalResult,type}) {
       heading?<div className='pt-1 text-md block  text-zinc-700 dark:text-white'>{answer}</div>:<div className={
         type=='q'?'pl-1 text-md block text-zinc-700 dark:text-white':'pl-5  text-zinc-600 dark:text-zinc-300'
       }>
-        <ReactMarkdown components={renderer}>{answer}</ReactMarkdown>
+        <ReactMarkdown components={{renderer}}>{answer}</ReactMarkdown>
         </div>
     }
           
